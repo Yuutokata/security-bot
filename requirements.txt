@@ -2,3 +2,5 @@ emoji
 colorama
 motor
 dnspython
+requests
+discord.py

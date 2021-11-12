@@ -7,7 +7,7 @@ from discord.ext import commands, tasks
 
 from utils.config import Config
 from utils.logger import logger
-from utils.mongodb import blacklist
+from utils.mongodb import blacklist, guild_settings
 
 
 class Bot(commands.Bot):
@@ -30,9 +30,23 @@ class Bot(commands.Bot):
         self.config = Config()
         self.logger = logger
         self.blacklist = blacklist
+        self.settings = guild_settings
 
     async def on_ready(self):
         self.logger.debug(f"Bot Started ...", extra={"emoji": ":rocket:"})
+
+    async def on_guild_join(self, guild):
+        try:
+            await self.settings.insert_one({"_id": int(guild.id), "settings": {"Links": False, "Log": None, "Invite": False, "Auto-Ban": {"status": False, "names": []}, "Min-Account-Age": None}})
+
+        except:
+            pass
+
+    async def on_guild_remove(self, guild):
+        try:
+            await self.settings.remove_one({"_id": int(guild.id)})
+        except:
+            pass
 
     async def process_commands(self, message):
         ctx = await self.get_context(message)

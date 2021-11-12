@@ -6,6 +6,8 @@ config = Config()
 
 cluster = motor.motor_asyncio.AsyncIOMotorClient(config.mongoURI)
 
-db = cluster[str(config.mongoDB)]
+db = cluster["Discord"]
+
+guild_settings = db["settings"]
 
 blacklist = db["blacklist"]

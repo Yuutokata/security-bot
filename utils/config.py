@@ -11,14 +11,15 @@ class Fallbacks:
     Description = None
     Developer = []
     Admins = []
+    Team = []
     statusLock = False
     statusDefault = None
     statusType = 0
     colorMain = "ffffff"
     colorError = "f44336"
     save = False
-
-
+    emojiWarning = None
+    
 class Config:
     def __init__(self):
         self.path = "config/config.ini"
@@ -45,6 +46,7 @@ class Config:
         self.description = config.get(section="Bot", option="Description", fallback=Fallbacks.Description)
         self.developer = config.get(section="Bot", option="Developer", fallback=Fallbacks.Developer)
         self.admins = config.get(section="Bot", option="Admins", fallback=Fallbacks.Admins)
+        self.team = config.get(section="Bot", option="Team Roles", fallback=Fallbacks.Team)
 
         self.statusLock = config.getboolean(section="Status", option="Lock", fallback=Fallbacks.statusLock)
         self.statusDefault = config.get(section="Status", option="Default", fallback=Fallbacks.statusDefault)
@@ -52,12 +54,18 @@ class Config:
 
         self.colorMain = config.get(section="Color", option="Main", fallback=Fallbacks.colorMain)
         self.colorError = config.get(section="Color", option="Error", fallback=Fallbacks.colorError)
-
+        
+        self.emojiWarning = config.get(section="Emoji", option="warning", fallback=Fallbacks.emojiWarning)
+        
+        
         self.loggingSave = config.getboolean(section="Logging", option="Save", fallback=Fallbacks.save)
 
         self.check()
 
     def check(self):
+
+        if self.mongoURI is None:
+            raise RuntimeError("No MongoURI was set")
 
         if len(self.developer) != 0:
             try:
@@ -66,10 +74,8 @@ class Config:
                 for id in ids:
                     self.developer.append(int(id))
             except:
-                # logger.warning("The Developer IDs are Invalid!",
-                #              error={"emoji": ":warning:"})
+
                 self.developer = Fallbacks.Developer
-            os._exit(1)
 
         if len(self.admins) != 0:
             try:
@@ -78,7 +84,16 @@ class Config:
                 for id in ids:
                     self.admins.append(int(id))
             except:
-                # logger.warning("The Admin IDs are Invalid!",
-                #              error={"emoji": ":warning:"})
+
                 self.admins = Fallbacks.Admins
-            os._exit(1)
+
+        if len(self.team) != 0:
+            try:
+                ids = self.team.split()
+                self.dev_ids = []
+                for id in ids:
+
+                    self.team.append(int(id))
+            except:
+
+                self.team = Fallbacks.Team
