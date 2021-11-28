@@ -16,7 +16,7 @@ class Links(commands.Cog):
         self.client = client
 
     async def checkPish(self, link):
-        r = requests.get("https://pishingdb.yuutokata.repl.co/")
+        r = requests.get("https://api.yuutokata.repl.co/domains", headers={"Token": config.databaseAPI})
         for url in r.json():
             if link == url:
                 return True
@@ -45,7 +45,7 @@ class Links(commands.Cog):
                         await message.guild.kick(message.author, reason=f"Pishing Link:\n{search.group(0)}")
                     except:
                         pass
-                    if settings["settings"]["log"] is not None:
+                    if settings["settings"]["Log"] is not None:
                         channel = self.client.get_channel(int(settings["settings"]["log"]))
                         embed = discord.Embed(title=f"{config.emojiWarning} Pishing Link {config.emojiWarning}",
                                               color=int(config.colorMain, 16))

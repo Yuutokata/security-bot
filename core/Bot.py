@@ -37,7 +37,7 @@ class Bot(commands.Bot):
 
     async def on_guild_join(self, guild):
         try:
-            await self.settings.insert_one({"_id": int(guild.id), "settings": {"Links": False, "Log": None, "Invite": False, "Auto-Ban": {"status": False, "names": []}, "Min-Account-Age": None}})
+            await self.settings.insert_one({"_id": int(guild.id), "settings": {"Links": False, "Log": None, "Invite": False, "Auto-Ban": {"status": False, "names": []}, "Min-Account-Age": None, "quarantine": {"bots": False}, "roles": {"team": None, "admin": None, "quarantine": None, "dev": None}}})
 
         except:
             pass
@@ -54,7 +54,6 @@ class Bot(commands.Bot):
             return
 
         if self.blacklist.find_one({"_id": int(ctx.author.id)}):
-            print("Test")
             return
 
     async def on_message(self, message):

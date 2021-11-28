@@ -19,7 +19,9 @@ class Fallbacks:
     colorError = "f44336"
     save = False
     emojiWarning = None
-    
+    DatabaseAPI = None
+    Version = None
+
 class Config:
     def __init__(self):
         self.path = "config/config.ini"
@@ -41,6 +43,7 @@ class Config:
         self.mongoURI = config.get(section="Credentials", option="MongoURI", fallback=Fallbacks.MongoURI)
         self.mongoDB = config.get(section="Credentials", option="Database Name", fallback=Fallbacks.MongoDB)
         self.googleKey = config.get(section="Credentials", option="Google Api Key", fallback=Fallbacks.GoogleApiKey)
+        self.databaseAPI = config.get("Credentials", option="Database API", fallback=Fallbacks.DatabaseAPI)
 
         self.prefix = config.get(section="Bot", option="Prefix", fallback=Fallbacks.Prefix)
         self.description = config.get(section="Bot", option="Description", fallback=Fallbacks.Description)
@@ -57,7 +60,7 @@ class Config:
         
         self.emojiWarning = config.get(section="Emoji", option="warning", fallback=Fallbacks.emojiWarning)
         
-        
+        self.version = config.get(section="Info", option="Version", fallback=Fallbacks.Version)
         self.loggingSave = config.getboolean(section="Logging", option="Save", fallback=Fallbacks.save)
 
         self.check()
