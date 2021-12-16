@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from utils.config import Config
 from utils.mongodb import guild_settings
+from utils.logger import logger
 
 config = Config()
 
@@ -24,9 +25,11 @@ class Links(commands.Cog):
                 pass
 
     @commands.Cog.listener()
+    @commands.guild_only()
     async def on_message(self, message):
         settings = await guild_settings.find_one({"_id": int(message.guild.id)})
-        if settings["settings"]["Links"] is True:
+        settings = settings["settings"]
+        if settings["Links"] is True:
             regex = re.compile(
                 r"(?:https?:\\.)?(www\.)?[-a-zA-Z0-9@:%.+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%+.~#?&=]*")
             search = re.search(regex, message.content.lower())
@@ -45,20 +48,22 @@ class Links(commands.Cog):
                         await message.guild.kick(message.author, reason=f"Pishing Link:\n{search.group(0)}")
                     except:
                         pass
-                    if settings["settings"]["Log"] is not None:
-                        channel = self.client.get_channel(int(settings["settings"]["log"]))
-                        embed = discord.Embed(title=f"{config.emojiWarning} Pishing Link {config.emojiWarning}",
-                                              color=int(config.colorMain, 16))
-                        embed.add_field(name="User", value=f"{message.author.name}", inline=True)
-                        embed.add_field(name="Time", value=f"<t:{datetime.datetime.now().timestamp()}:F>", inline=True)
-                        embed.add_field(name="Link", value=f"|| {search.group(0)} ||", inline=False)
-                        embed.set_footer(text="Powered by Phish.surf")
-                        try:
-                            await channel.send(embed=embed)
-                        except:
-                            pass
+                    if settings["Log"]["Status"]:
+                        logger.info(f"{message.author.name} send a Pishing Domain/Link in {message.channel.name}",
+                                    extra={"emoji": ":warning:"})
+                        if settings["Log"]["channel"] is not None:
+                            try:
+                                channel = self.client.get_channel(int(settings["Log"]["channel"]))
+                                embed = discord.Embed(title=f"{config.emojiWarning} Invite {config.emojiWarning}",
+                                                      color=int(config.colorMain, 16),
+                                                      description=f"\n\r {message.author.name} \n hat einen Link in {message.channel.mention} geschickt.")
+                                embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
 
-        if settings["settings"]["Invite"] is True:
+                                await channel.send(embed=embed)
+                            except:
+                                pass
+
+        if settings["Invite"] is True:
             regex = re.compile(r'discord(?:\.com|app\.com|\.gg)/(?:invite/)?([a-zA-Z0-9\-]{2,32})')
             search = re.search(regex, message.content.lower())
             if search:
@@ -70,19 +75,20 @@ class Links(commands.Cog):
                                                       "dies ist gegen unsere Regeln. Sollte sich dies wiederholen wirst du bestraft.")
                     await message.channel.send(embed=embed)
 
-                    if settings["settings"]["log"] is not None:
-                        try:
-                            channel = self.client.get_channel(int(settings["settings"]["log"]))
-                            embed = discord.Embed(title=f"{config.emojiWarning} Invite {config.emojiWarning}",
-                                                  color=int(config.colorMain, 16),
-                                                  description=f"\n\r {message.author.name} \n hat einen Link in {message.channel.mention} geschickt.")
-                            embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+                    if settings["Log"]["Status"]:
+                        logger.info(f"{message.author.name} send a Server Invite in {message.channel.name}",
+                                    extra={"emoji": ":warning:"})
+                        if settings["Log"]["channel"] is not None:
+                            try:
+                                channel = self.client.get_channel(int(settings["Log"]["channel"]))
+                                embed = discord.Embed(title=f"{config.emojiWarning} Invite {config.emojiWarning}",
+                                                      color=int(config.colorMain, 16),
+                                                      description=f"\n\r {message.author.name} \n hat einen Link in {message.channel.mention} geschickt.")
+                                embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
 
-                            await channel.send(embed=embed)
-                        except:
-                            pass
-
-
+                                await channel.send(embed=embed)
+                            except:
+                                pass
 
 
 def setup(client):

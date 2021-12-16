@@ -4,6 +4,7 @@ import re
 import uuid
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
+from utils.config import Config
 
 import emoji
 from colorama import Fore
@@ -99,27 +100,29 @@ console_handler.setFormatter(
 )
 
 
-def save(status: bool):
-    if status is False:
-        logs_path = os.path.join(Path().absolute(), "logs")
-        Path(logs_path).mkdir(parents=True, exist_ok=True)
-        logs_file = os.path.join(
-            logs_path,
-            f"{session_id}.log",
-        )
-        file_handler = TimedRotatingFileHandler(
-            logs_file,
-            when="D",
-            interval=1,
-            backupCount=7,
-            encoding="utf-8",
-            delay=False)
-        file_handler.setFormatter(
-            logging.Formatter(
-                fmt="%(asctime)s - %(levelname)s: %(message)s",
-                datefmt="%d/%m/%y %H:%M:%S"))
-        file_handler.setLevel(logging.DEBUG)
-        logger.addHandler(file_handler)
+def save():
+    logs_path = os.path.join(Path().absolute(), "logs")
+    Path(logs_path).mkdir(parents=True, exist_ok=True)
+    logs_file = os.path.join(
+        logs_path,
+        f"{session_id}.log",
+    )
+    file_handler = TimedRotatingFileHandler(
+        logs_file,
+        when="D",
+        interval=1,
+        backupCount=7,
+        encoding="utf-8",
+        delay=False)
+    file_handler.setFormatter(
+        logging.Formatter(
+            fmt="%(asctime)s - %(levelname)s: %(message)s",
+            datefmt="%d/%m/%y %H:%M:%S"))
+    file_handler.setLevel(logging.DEBUG)
+    logger.addHandler(file_handler)
 
+
+if Config().loggingSave:
+    save()
 
 logger.addHandler(console_handler)

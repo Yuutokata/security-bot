@@ -4,3 +4,6 @@ motor
 dnspython
 requests
 discord.py
+discord-py-slash-command
+pillow
+Augmentor

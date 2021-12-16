@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands, tasks
 
 from utils.config import Config
-from utils.logger import logger
+from utils.logger import logger, session_id
 from utils.mongodb import blacklist, guild_settings
 
 
@@ -31,35 +31,32 @@ class Bot(commands.Bot):
         self.logger = logger
         self.blacklist = blacklist
         self.settings = guild_settings
+        self.session_id = session_id
 
     async def on_ready(self):
-        self.logger.debug(f"Bot Started ...", extra={"emoji": ":rocket:"})
+        self.logger.debug(f"Bot Started with Session ID: {self.session_id} ...", extra={"emoji": ":rocket:"})
+        self.logger.debug(f"Name: {self.user.name}", extra={"emoji": ":rocket:"})
+        self.logger.debug(f"Id: {self.user.id}", extra={"emoji": ":rocket:"})
 
     async def on_guild_join(self, guild):
+        self.logger.info(f"Joined new Server {guild.name}")
         try:
-            await self.settings.insert_one({"_id": int(guild.id), "settings": {"Links": False, "Log": None, "Invite": False, "Auto-Ban": {"status": False, "names": []}, "Min-Account-Age": None, "quarantine": {"bots": False}, "roles": {"team": None, "admin": None, "quarantine": None, "dev": None}}})
-
+            await self.settings.insert_one({"_id": int(guild.id),
+                                            "settings": {"Links": False, "Log": {"Status": False, "channel": None},
+                                                         "Invite": False,
+                                                         "Auto-Ban": {"status": False, "names": []},
+                                                         "Min-Account-Age": {"Status": False, "age": None},
+                                                         "quarantine": {"bots": False, "role": None},
+                                                         "Verification": {"Status": False, "channel": None, "role": None}}})
         except:
             pass
 
     async def on_guild_remove(self, guild):
+        self.logger.error(f"Left Server {guild.name}")
         try:
             await self.settings.remove_one({"_id": int(guild.id)})
         except:
             pass
-
-    async def process_commands(self, message):
-        ctx = await self.get_context(message)
-        if ctx.command is None:
-            return
-
-        if self.blacklist.find_one({"_id": int(ctx.author.id)}):
-            return
-
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-        await self.process_commands(message)
 
     @tasks.loop(minutes=15)
     async def activity(self):

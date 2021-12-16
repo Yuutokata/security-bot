@@ -18,9 +18,10 @@ class Fallbacks:
     colorMain = "ffffff"
     colorError = "f44336"
     save = False
-    emojiWarning = None
+    emoji = None
     DatabaseAPI = None
     Version = None
+
 
 class Config:
     def __init__(self):
@@ -49,17 +50,19 @@ class Config:
         self.description = config.get(section="Bot", option="Description", fallback=Fallbacks.Description)
         self.developer = config.get(section="Bot", option="Developer", fallback=Fallbacks.Developer)
         self.admins = config.get(section="Bot", option="Admins", fallback=Fallbacks.Admins)
-        self.team = config.get(section="Bot", option="Team Roles", fallback=Fallbacks.Team)
-
+        self.teams = config.get(section="Bot", option="Team Roles", fallback=Fallbacks.Team)
+        self.team = config.get(section="Bot", option="Team Role", fallback=Fallbacks.Team)
         self.statusLock = config.getboolean(section="Status", option="Lock", fallback=Fallbacks.statusLock)
         self.statusDefault = config.get(section="Status", option="Default", fallback=Fallbacks.statusDefault)
         self.statusType = config.getint(section="Status", option="Type", fallback=Fallbacks.statusType)
 
         self.colorMain = config.get(section="Color", option="Main", fallback=Fallbacks.colorMain)
         self.colorError = config.get(section="Color", option="Error", fallback=Fallbacks.colorError)
-        
-        self.emojiWarning = config.get(section="Emoji", option="warning", fallback=Fallbacks.emojiWarning)
-        
+
+        self.emojiWarning = config.get(section="Emoji", option="warning", fallback=Fallbacks.emoji)
+        self.on = config.get(section="Emoji", option="on", fallback=Fallbacks.emoji)
+        self.off = config.get(section="Emoji", option="off", fallback=Fallbacks.emoji)
+
         self.version = config.get(section="Info", option="Version", fallback=Fallbacks.Version)
         self.loggingSave = config.getboolean(section="Logging", option="Save", fallback=Fallbacks.save)
 
@@ -90,12 +93,11 @@ class Config:
 
                 self.admins = Fallbacks.Admins
 
-        if len(self.team) != 0:
+        if len(self.teams) != 0:
             try:
-                ids = self.team.split()
+                ids = self.teams.split()
                 self.dev_ids = []
                 for id in ids:
-
                     self.team.append(int(id))
             except:
 
