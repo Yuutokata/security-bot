@@ -44,10 +44,12 @@ class Bot(commands.Bot):
             await self.settings.insert_one({"_id": int(guild.id),
                                             "settings": {"Links": False, "Log": {"Status": False, "channel": None},
                                                          "Invite": False,
-                                                         "Auto-Ban": {"status": False, "names": []},
+                                                         "Auto-Ban": {"status": False},
                                                          "Min-Account-Age": {"Status": False, "age": None},
                                                          "quarantine": {"bots": False, "role": None},
-                                                         "Verification": {"Status": False, "channel": None, "role": None} }})
+                                                         "Verification": {"Status": False, "channel": None,
+                                                                          "role": None}},
+                                            "names": []})
         except:
             pass
 

@@ -26,7 +26,7 @@ async def settingsEmbed(ctx, client):
     settings = await guild_settings.find_one({"_id": int(ctx.guild.id)})
     settings = settings["settings"]
     embed = discord.Embed(title=f"**{ctx.guild.name}** Settings",
-                          description=f"Hier kannst du die Settings vom Server sehen um sie zu bearbeiten gebe jetzt `edit` ein.",
+                          description=f"Hier kannst du die Settings vom Server sehen um sie zu bearbeiten gebe jetzt *edit* ein.",
                           color=int(config.colorMain, 16))
     if settings["Links"] is True:
         embed.add_field(name=f"Pishing Links", value=f"**Status:** {on}", inline=False)
