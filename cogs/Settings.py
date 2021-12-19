@@ -38,7 +38,7 @@ async def settingsEmbed(ctx, client):
         embed.add_field(name=f"Invite Links", value=f"**Status:** {off}", inline=False)
     if settings["Auto-Ban"]["status"] is True:
         names = ""
-        for name in settings["Auto-Ban"]["names"]:
+        for name in await guild_settings.find_one({"_id": int(ctx.guild.id)})["names"]:
             names += f"{name}\n"
         embed.add_field(name=f"Auto Ban", value=f"**Status:** {on}\n **Names:**\n `{names}`", inline=False)
     if settings["Auto-Ban"]["status"] is False:

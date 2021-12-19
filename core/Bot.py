@@ -47,7 +47,7 @@ class Bot(commands.Bot):
                                                          "Auto-Ban": {"status": False, "names": []},
                                                          "Min-Account-Age": {"Status": False, "age": None},
                                                          "quarantine": {"bots": False, "role": None},
-                                                         "Verification": {"Status": False, "channel": None, "role": None}}})
+                                                         "Verification": {"Status": False, "channel": None, "role": None} }})
         except:
             pass
 
@@ -65,12 +65,14 @@ class Bot(commands.Bot):
         presence = random.choice(presences)
         status = self.status()
         if presence == "user":
+            users = len(self.users) - self.get_guild(839207316808007761).member_count
             await self.change_presence(
-                activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(self.users)} Users"),
+                activity=discord.Activity(type=discord.ActivityType.watching, name=f"{users} Users"),
                 status=status)
         if presence == "guilds":
+            guild = len(self.guilds) - 1
             await self.change_presence(
-                activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(self.guilds)} Guilds"),
+                activity=discord.Activity(type=discord.ActivityType.watching, name=f"{guild} Guilds"),
                 status=status)
 
     def presence(self):
