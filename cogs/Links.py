@@ -8,6 +8,7 @@ from discord.ext import commands
 from utils.config import Config
 from utils.mongodb import guild_settings
 from utils.logger import logger
+from phishing import database
 
 config = Config()
 
@@ -16,9 +17,8 @@ class Links(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def checkPish(self, link):
-        r = requests.get("https://api.yuutokata.repl.co/domains", headers={"Token": config.databaseAPI})
-        for url in r.json():
+    async def checkPhish(self, link):
+        for url in await database.load():
             if link == url:
                 return True
             else:
@@ -34,22 +34,22 @@ class Links(commands.Cog):
                 r"(?:https?:\\.)?(www\.)?[-a-zA-Z0-9@:%.+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%+.~#?&=]*")
             search = re.search(regex, message.content.lower())
             if search:
-                if await self.checkPish(link=search.group(0)):
-                    embed = discord.Embed(title=f"{config.emojiWarning} Pishing Link {config.emojiWarning}",
+                if await self.checkPhish(link=search.group(0)):
+                    embed = discord.Embed(title=f"{config.emojiWarning} Phishing Link {config.emojiWarning}",
                                           color=int(config.colorMain, 16), description=f"""\n\rDiese Website könnte dich dazu verleiten, etwas Gefährliches zu tun,
                         wie z. B. Software zu installieren oder deine persönlichen Daten (z. B. Kennwörter, Telefonnummern oder Kreditkarten) preiszugeben.
                         Weitere Informationen über Phishing/Social Engineering (Phishing) finden Sie unter [Phishing(Phishing und betrügerische Websites)](https://support.google.com/webmasters/answer/6350487)
                         oder unter [www.antiphishing.org](https://www.antiphishing.org).""")
                     embed.add_field(name="Domain", value=f"||{search.group(0)} ||")
-                    embed.set_footer(text="Powered by Phish.surf")
+                    embed.set_footer(text="Powered by api.yuuto.de")
                     await message.channel.send(embed=embed)
-                    await message.delete()
                     try:
-                        await message.guild.kick(message.author, reason=f"Pishing Link:\n{search.group(0)}")
+                        await message.delete()
+                        await message.guild.kick(message.author, reason=f"Phishing Link:\n{search.group(0)}")
                     except:
                         pass
                     if settings["Log"]["Status"]:
-                        logger.info(f"{message.author.name} send a Pishing Domain/Link in {message.channel.name}",
+                        logger.info(f"{message.author.name} send a Phishing Domain/Link in {message.channel.name}",
                                     extra={"emoji": ":warning:"})
                         if settings["Log"]["channel"] is not None:
                             try:
@@ -68,7 +68,10 @@ class Links(commands.Cog):
             search = re.search(regex, message.content.lower())
             if search:
                 if not message.author.guild_permissions.administrator:
-                    await message.delete()
+                    try:
+                        await message.delete()
+                    except:
+                        pass
                     embed = discord.Embed(title=f"{config.emojiWarning} Invite {config.emojiWarning}",
                                           color=int(config.colorMain, 16),
                                           description=f"\n\r {message.author.mention} \nBitte sende keine Server Invites in einen Channel von diesem Server,"

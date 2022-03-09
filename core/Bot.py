@@ -8,6 +8,7 @@ from discord.ext import commands, tasks
 from utils.config import Config
 from utils.logger import logger, session_id
 from utils.mongodb import blacklist, guild_settings
+from phishing import database
 
 
 class Bot(commands.Bot):
@@ -37,6 +38,8 @@ class Bot(commands.Bot):
         self.logger.debug(f"Bot Started with Session ID: {self.session_id} ...", extra={"emoji": ":rocket:"})
         self.logger.debug(f"Name: {self.user.name}", extra={"emoji": ":rocket:"})
         self.logger.debug(f"Id: {self.user.id}", extra={"emoji": ":rocket:"})
+        await self.phishing.start()
+
 
     async def on_guild_join(self, guild):
         self.logger.info(f"Joined new Server {guild.name}")
@@ -77,6 +80,12 @@ class Bot(commands.Bot):
                 activity=discord.Activity(type=discord.ActivityType.watching, name=f"{guild} Guilds"),
                 status=status)
 
+    @tasks.loop(hours=3)
+    async def phishing(self):
+        await database.update()
+        self.logger.info("Phishing database updated", extra={"emoji": ":counterclockwise_arrows_button:"})
+
+
     def presence(self):
         status = self.status()
         if self.config.statusLock is True:
@@ -87,6 +96,7 @@ class Bot(commands.Bot):
         if self.config.statusLock is False:
             self.activity.start()
 
+
     def status(self):
         if self.config.statusType == 0:
             return discord.Status.online
@@ -94,6 +104,7 @@ class Bot(commands.Bot):
             return discord.Status.idle
         if self.config.statusType == 2:
             return discord.Status.offline
+
 
     def cogs(self):
         if not os.path.isdir("cogs"):
@@ -105,8 +116,10 @@ class Bot(commands.Bot):
                 except Exception as e:
                     logger.error(f"Cant Load {filename[:-3]} Reason: {e} ", extra={"emoji": ":stop_sign:"})
 
+
     async def close(self):
         await super().close()
+
 
     def run(self):
         self.logger.debug(f"Starting ...", extra={"emoji": ":bomb:"})

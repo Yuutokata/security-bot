@@ -13,13 +13,13 @@ config = Config()
 class AutoBan(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.session = aiohttp.ClientSession()
 
     async def decodeUsername(self, name: str):
-        async with aiohttp.ClientSession() as session:
-            async with session.post('https://entity.yuutokata.repl.co/encode',
-                                    json={"message": f"{name}"}) as response:
-                json = await response.json()
-            return json
+        async with self.session.post('https://entity.yuutokata.repl.co/encode',
+                                     json={"message": f"{name}"}) as response:
+            json = await response.json()
+        return json
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
